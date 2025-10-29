@@ -13,6 +13,9 @@ def mock_pipeline(monkeypatch):
         def predict_proba(self, X):
             # Всегда возвращаем вероятность 0.9 для класса "фишинг"
             return np.array([[0.1, 0.9]])
+        def predict(self, X):
+            # Всегда предсказываем "фишинг"
+            return np.array([1])
     monkeypatch.setattr(api.api, "pipeline", DummyPipeline())
     yield
 
@@ -25,9 +28,9 @@ def test_predict_valid_url():
     assert resp.status_code == 200
     data = resp.json()
     assert data["url"].startswith("http://")
-    assert "prediction" in data
-    assert "probability" in data
     assert isinstance(data["prediction"], int)
+    assert isinstance(data["probability"], float)
+    assert 0.0 <= data["probability"] <= 1.0
 
 def test_predict_invalid_url():
     '''
@@ -75,3 +78,15 @@ def test_explain_empty_url():
     resp = client.get("/explain", params={"url": ""})
     assert resp.status_code == 400
     assert "URL не может быть пустым" in resp.json()["detail"]
+
+# Тест для Trusted_domains
+def test_predict_trusted_domain(monkeypatch):
+    '''
+    Подменяем TRUSTED_DOMAINS на список с example.com, ожидаем prediction 0 (safe)
+    '''
+    monkeypatch.setattr(api.api, "TRUSTED_DOMAINS", ["example.com"])
+    resp = client.get("/predict", params={"url": "http://example.com"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["trusted"] is True
+    assert data["prediction"] == 0
