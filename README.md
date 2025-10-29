@@ -46,7 +46,7 @@ streamlit run ui/app.py
 ```
 ## Недостающие данные
 
-Из-за ограничений GitHub файлы больше 100 MB не хранятся в репозитории, поэтому саму модель и данные для обучения модели можно скачать по ссылке:<br> (https://drive.google.com/drive/folders/1uv-Wx3qfW4vqgSC404eAXeehfbnKqIGQ?usp=sharing)
+Из-за ограничений GitHub файлы больше 100 MB не хранятся в репозитории, поэтому саму модель и данные для обучения модели можно скачать по ссылке:<br> (https://drive.google.com/drive/folders/1w64HmmEHBtsrJyZ09c0wEpsjLdotn32d?usp=sharing)
 
 После скачивания разместите файлы в следующие папки проекта:
 * model/RF_pipeline.pkl
