@@ -24,6 +24,8 @@
 
 ## Обучение модели
 Сравнение моделей Random Forest, Logistic Regression, SVM и Neural Network представлен в **/model_training/Models_comparison.ipynb**
+
+
 Процесс настройки Random Forest представлен в **/model_training/RandomForest_tuning.ipynb**
 
 ## Запуск проекта c Docker
