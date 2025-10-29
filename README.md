@@ -44,3 +44,11 @@ uvicorn api.api:app --reload
 
 streamlit run ui/app.py
 ```
+## Недостающие данные
+
+Из-за ограничений GitHub файлы больше 100 MB не хранятся в репозитории, поэтому саму модель и данные для обучения модели можно скачать по ссылке:<br> (https://drive.google.com/drive/folders/1uv-Wx3qfW4vqgSC404eAXeehfbnKqIGQ?usp=sharing)
+
+После скачивания разместите файлы в следующие папки проекта:
+* model/RF_pipeline.pkl
+* model_training/new_data_urls.csv
+* model_training/df.csv
