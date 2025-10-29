@@ -33,7 +33,18 @@ except Exception:
 
 # Модель
 MODEL_PATH = BASE_DIR.parent / "model" / "RF_pipeline.pkl"
-pipeline = joblib.load(MODEL_PATH)
+pipeline = None
+
+@app.on_event("startup")
+def load_model():
+    """Загружаем модель при старте приложения"""
+    global pipeline
+    if MODEL_PATH.exists():
+        pipeline = joblib.load(MODEL_PATH)
+        logger.info(f"Модель загружена из {MODEL_PATH}")
+    else:
+        logger.warning(f"Файл модели {MODEL_PATH} не найден. Используется None.")
+        pipeline = None
 
 # Постобработка
 def postprocess_prediction(url: str, proba: float, threshold: float = THRESHOLD):
@@ -88,19 +99,15 @@ def predict(url: str = Query(..., description="URL или IP для провер
         raise HTTPException(status_code=400, detail="Некорректный формат URL или IP")
     if not is_plausible_url(url):
         raise HTTPException(status_code=400, detail="Некорректный или несуществующий домен")
+      
+    if pipeline is None:
+        raise HTTPException(status_code=500, detail="Модель не загружена")
 
     try:
-        url = str(url)
-        if not url:
-            raise HTTPException(status_code=400, detail="URL не может быть пустым после нормализации")
-
         X = pd.DataFrame([[url]], columns=["url"])
-        logger.info(f"Тип значения в X['url']: {type(X['url'].iloc[0])}, значение: {X['url'].iloc[0]!r}")
-
         proba = pipeline.predict_proba(X)[0, 1]
         pred, class_name, proba, threshold, trusted = postprocess_prediction(url, proba)
-
-        logger.info(f"[PREDICT] URL={url}, proba={proba:.4f}, pred={pred} ({class_name}), trusted={trusted}")
+      
         return {"url": url,
                 "prediction": int(pred),
                 "class_name": class_name,
@@ -217,4 +224,5 @@ def explain(url: str = Query(..., description="URL или IP для объясн
 
     except Exception as e:
         logger.exception("Ошибка при объяснении URL")
+
         raise HTTPException(status_code=500, detail=f"Ошибка при объяснении: {e}")
